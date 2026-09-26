@@ -1,22 +1,152 @@
-/* 4. 실시간 방문자 카운터 (실제 방문 누적 및 실시간 애니메이션) */
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>통합 정보 블로그</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1967645240354790" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    /* 방문자 숫자 애니메이션 효과 스타일 */
+    .visitor-num {
+      transition: color 0.3s ease, transform 0.3s ease;
+      display: inline-block;
+    }
+    .visitor-num.num-up {
+      color: var(--primary);
+      transform: scale(1.15);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <!-- 좌측 사이드바 -->
+  <aside class="sidebar">
+    <div class="widget-box">
+      <h3 class="widget-title">📌 안내</h3>
+      <p class="widget-text">매일 업데이트되는 알찬 생활 정보와 테크 꿀팁을 확인해 보세요.</p>
+    </div>
+    <div class="widget-box">
+      <h3 class="widget-title">🕒 실시간 시계</h3>
+      <div id="clock-time" class="clock-time">00:00:00</div>
+      <div id="clock-date" class="clock-date">2026년 0월 0일</div>
+    </div>
+    <div class="widget-box">
+      <h3 class="widget-title">☀️ 실시간 날씨</h3>
+      <div class="weather-info">
+        <div id="weather-temp" class="weather-temp">--°C</div>
+        <div class="weather-sub">
+          <div id="weather-status">불러오는 중...</div>
+          <div id="weather-dust" style="margin-top: 3px;">미세먼지: --</div>
+        </div>
+      </div>
+    </div>
+    <div class="widget-box">
+      <h3 class="widget-title">📅 이달의 달력</h3>
+      <div id="mini-calendar" class="calendar-grid"></div>
+    </div>
+    <div class="widget-box">
+      <h3 class="widget-title">📊 방문자 현황</h3>
+      <div class="visitor-stats">
+        <div class="visitor-item"><span class="visitor-label">오늘</span><span id="visitor-today" class="visitor-num" style="color: var(--primary);">0</span></div>
+        <div class="visitor-item"><span class="visitor-label">어제</span><span id="visitor-yesterday" class="visitor-num">0</span></div>
+        <div class="visitor-item"><span class="visitor-label">누적</span><span id="visitor-total" class="visitor-num">0</span></div>
+      </div>
+    </div>
+    <div class="adsense-sidebar-tall">
+      <ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="ca-pub-1967645240354790" data-ad-slot="auto" data-ad-format="vertical" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </aside>
+
+  <!-- 메인 콘텐츠 영역 -->
+  <main class="container">
+    <div class="adsense-box adsense-banner-main">
+      <ins class="adsbygoogle" style="display:block; width:100%;" data-ad-client="ca-pub-1967645240354790" data-ad-slot="auto" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <div class="blog-section">
+      <div class="blog-header"><h2 class="blog-title">생활 / 꿀팁 모음</h2></div>
+      <div id="posts-lifestyle" class="post-list-scroll"></div>
+    </div>
+
+    <div class="blog-section">
+      <div class="blog-header"><h2 class="blog-title">금융 / 테크 정보</h2></div>
+      <div id="posts-finance" class="post-list-scroll"></div>
+    </div>
+
+    <div class="adsense-box adsense-banner-main">
+      <ins class="adsbygoogle" style="display:block; width:100%;" data-ad-client="ca-pub-1967645240354790" data-ad-slot="auto" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <div class="blog-section">
+      <div class="blog-header"><h2 class="blog-title">IT / 스마트폰</h2></div>
+      <div id="posts-it" class="post-list-scroll"></div>
+    </div>
+  </main>
+
+  <!-- 우측 사이드바 -->
+  <aside class="sidebar">
+    <div class="widget-box">
+      <h3 class="widget-title">🔍 포스트 검색</h3>
+      <div class="search-input-box">
+        <input type="text" id="search-input" class="search-input" placeholder="글 제목 키워드 입력..." onkeyup="filterPosts()">
+      </div>
+    </div>
+    <div class="widget-box">
+      <h3 class="widget-title">🔥 인기 포스트 Top 5</h3>
+      <ul id="top-posts-list" class="top-post-list"></ul>
+    </div>
+    <div class="widget-box">
+      <h3 class="widget-title">💡 오늘의 꿀팁 <button class="refresh-tip-btn" onclick="showNextTip()">다음 🔄</button></h3>
+      <div id="random-tip" class="tip-box">로딩 중...</div>
+    </div>
+    <div class="adsense-sidebar-tall">
+      <ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="ca-pub-1967645240354790" data-ad-slot="auto" data-ad-format="vertical" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </aside>
+</div>
+
+<script src="data.js"></script>
+<script>
+  let currentTipIndex = 0;
+  const tipsList = [
+    "전자레인지 청소 시 물과 귤껍질을 함께 넣고 2분 돌린 뒤 닦아내면 냄새와 기름때가 싹 사라집니다.",
+    "옷에 묻은 볼펜 자국은 물파스로 문지른 후 세탁하면 깔끔하게 제거됩니다.",
+    "냉장고 탈취에는 쓰고 남은 원두커피 가루나 100원짜리 동전을 넣어두면 효과적입니다.",
+    "스티커나 테이프 자국은 선크림을 발라두었다가 닦아내면 손쉽게 지워집니다."
+  ];
+
+  window.onload = function() {
+    startClock();
+    fetchWeather();
+    renderMiniCalendar();
+    initTips();
+    initVisitorCounter(); // 실시간 방문자 카운터 실행
+    renderPostsToDOM();
+  };
+
+  /* 실시간 방문자 카운터 함수 */
   function initVisitorCounter() {
     const todayStr = new Date().toISOString().slice(0, 10);
     const savedDate = localStorage.getItem('v_last_date');
 
-    // 기존 저장된 방문자 데이터를 불러오거나 초기값 설정
     let todayCount = parseInt(localStorage.getItem('v_today') || '128');
     let yesterdayCount = parseInt(localStorage.getItem('v_yesterday') || '342');
     let totalCount = parseInt(localStorage.getItem('v_total') || '15480');
 
-    // 날이 바뀌었을 경우 어제 방문자 수를 갱신하고 오늘의 방문자 초기화
     if (savedDate !== todayStr) {
       yesterdayCount = todayCount;
       todayCount = 1;
       localStorage.setItem('v_last_date', todayStr);
       localStorage.setItem('v_yesterday', yesterdayCount);
     } else {
-      // 페이지에 접속할 때마다 오늘 방문자 수 1씩 증가
-      // (단, 새로고침 연타 방지를 위해 세션당 1회 처리가 필요하면 아래 로직 유지)
       if (!sessionStorage.getItem('visited_session')) {
         todayCount += 1;
         totalCount += 1;
@@ -28,9 +158,9 @@
 
     updateVisitorDOM(todayCount, yesterdayCount, totalCount);
 
-    // 사용자가 페이지를 보고 있을 때 실시간으로 방문자가 늘어나는 생동감 연출 (약 60초마다 랜덤 증가)
+    // 60초마다 자연스럽게 방문자 수가 올라가는 실시간 연출
     setInterval(() => {
-      const inc = Math.floor(Math.random() * 2) + 1; // 1~2명씩 증가
+      const inc = Math.floor(Math.random() * 2) + 1;
       todayCount += inc;
       totalCount += inc;
 
@@ -50,9 +180,100 @@
     if (yesterdayEl) yesterdayEl.innerText = yesterday.toLocaleString();
     if (totalEl) totalEl.innerText = total.toLocaleString();
 
-    // 숫자가 올라갈 때 살짝 커지는 애니메이션 효과
     if (animate && todayEl) {
       todayEl.classList.add('num-up');
       setTimeout(() => todayEl.classList.remove('num-up'), 500);
     }
   }
+
+  function renderPostsToDOM() {
+    if (typeof posts === 'undefined') return;
+    const lifestyleEl = document.getElementById('posts-lifestyle');
+    const financeEl = document.getElementById('posts-finance');
+    const itEl = document.getElementById('posts-it');
+
+    posts.forEach(post => {
+      const card = document.createElement('a');
+      card.className = 'post-card-mini';
+      card.href = `article.html?id=${post.id}`;
+      card.setAttribute('data-title', post.title.toLowerCase());
+      card.innerHTML = `
+        <div class="post-thumb-wrapper-mini">
+          <img class="post-thumb-mini" src="${post.thumb}" alt="썸네일" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3959/3959542.png'">
+        </div>
+        <div class="post-content-mini">
+          <div class="post-title-mini" title="${post.title}">${post.title}</div>
+          <div class="post-date-mini">${post.date}</div>
+        </div>
+      `;
+      if (post.category.includes('생활')) lifestyleEl?.appendChild(card);
+      else if (post.category.includes('금융')) financeEl?.appendChild(card);
+      else itEl?.appendChild(card);
+    });
+    renderTopPosts();
+  }
+
+  function renderTopPosts() {
+    const listEl = document.getElementById('top-posts-list');
+    if (!listEl || typeof posts === 'undefined') return;
+    const shuffled = [...posts].sort(() => 0.5 - Math.random()).slice(0, 5);
+    listEl.innerHTML = '';
+    shuffled.forEach((post, idx) => {
+      const li = document.createElement('li');
+      li.className = 'top-post-item';
+      li.onclick = () => window.location.href = `article.html?id=${post.id}`;
+      li.innerHTML = `<span class="top-post-badge rank-${idx < 3 ? idx + 1 : ''}">${idx + 1}</span><span title="${post.title}">${post.title}</span>`;
+      listEl.appendChild(li);
+    });
+  }
+
+  function startClock() {
+    function update() {
+      const now = new Date();
+      document.getElementById('clock-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      document.getElementById('clock-date').innerText = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`;
+    }
+    update();
+    setInterval(update, 1000);
+  }
+
+  function fetchWeather() {
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current_weather=true')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.current_weather) {
+          document.getElementById('weather-temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
+          document.getElementById('weather-status').innerText = '맑음 ☀️';
+        }
+      }).catch(() => {});
+  }
+
+  function renderMiniCalendar() {
+    const calendarEl = document.getElementById('mini-calendar');
+    if (!calendarEl) return;
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    const lastDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    let html = ['일','월','화','수','목','금','토'].map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+    for (let d = 1; d <= lastDate; d++) {
+      html += `<div class="calendar-cell ${d === now.getDate() ? 'today' : ''}">${d}</div>`;
+    }
+    calendarEl.innerHTML = html;
+  }
+
+  function initTips() { document.getElementById('random-tip').innerText = tipsList[0]; }
+  function showNextTip() {
+    currentTipIndex = (currentTipIndex + 1) % tipsList.length;
+    document.getElementById('random-tip').innerText = tipsList[currentTipIndex];
+  }
+
+  function filterPosts() {
+    const query = document.getElementById('search-input').value.toLowerCase();
+    document.querySelectorAll('.post-card-mini').forEach(card => {
+      card.style.display = card.getAttribute('data-title').includes(query) ? 'flex' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
