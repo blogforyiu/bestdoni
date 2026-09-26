@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <style>
-    /* 방문자 숫자 애니메이션 효과 스타일 */
+    /* 방문자 숫자 애니메이션 및 메뉴 버튼 스타일 */
     .visitor-num {
       transition: color 0.3s ease, transform 0.3s ease;
       display: inline-block;
@@ -17,6 +17,29 @@
     .visitor-num.num-up {
       color: var(--primary);
       transform: scale(1.15);
+    }
+    .blog-menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .blog-menu-btn {
+      display: block;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .blog-menu-btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
     }
   </style>
 </head>
@@ -26,8 +49,12 @@
   <!-- 좌측 사이드바 -->
   <aside class="sidebar">
     <div class="widget-box">
-      <h3 class="widget-title">📌 안내</h3>
-      <p class="widget-text">매일 업데이트되는 알찬 생활 정보와 테크 꿀팁을 확인해 보세요.</p>
+      <h3 class="widget-title">📌 블로그 메뉴</h3>
+      <div class="blog-menu-links">
+        <a href="about.html" class="blog-menu-btn">📖 블로그 소개 (About)</a>
+        <a href="privacy.html" class="blog-menu-btn">🔒 개인정보처리방침</a>
+        <a href="contact.html" class="blog-menu-btn">✉️ 문의하기 (Contact)</a>
+      </div>
     </div>
     <div class="widget-box">
       <h3 class="widget-title">🕒 실시간 시계</h3>
@@ -128,11 +155,10 @@
     fetchWeather();
     renderMiniCalendar();
     initTips();
-    initVisitorCounter(); // 실시간 방문자 카운터 실행
+    initVisitorCounter();
     renderPostsToDOM();
   };
 
-  /* 실시간 방문자 카운터 함수 */
   function initVisitorCounter() {
     const todayStr = new Date().toISOString().slice(0, 10);
     const savedDate = localStorage.getItem('v_last_date');
@@ -158,7 +184,6 @@
 
     updateVisitorDOM(todayCount, yesterdayCount, totalCount);
 
-    // 60초마다 자연스럽게 방문자 수가 올라가는 실시간 연출
     setInterval(() => {
       const inc = Math.floor(Math.random() * 2) + 1;
       todayCount += inc;
