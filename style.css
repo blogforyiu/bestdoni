@@ -1,3 +1,6 @@
+/* --- 웹폰트 불러오기 (함초롱바탕 / 명조 계열) --- */
+@import url('https://hangeul.pstatic.net/hangeul_static/css/hamchorong-batang.css');
+
 /* --- 기본 초기화 및 레이아웃 설정 --- */
 * {
   box-sizing: border-box;
@@ -6,7 +9,7 @@
 }
 
 body {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  font-family: '함초롱바탕', 'HamchorongBatang', serif;
   background-color: #f8fafc;
   color: #1e293b;
   line-height: 1.6;
